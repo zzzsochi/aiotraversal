@@ -5,6 +5,7 @@ import warnings
 from aiohttp.web import Application as BaseApplication
 from zope.dottedname.resolve import resolve
 
+from .exceptions import ViewNotResolved
 from .router import Router
 from .resources import Root
 
@@ -80,6 +81,28 @@ class Application(BaseApplication):
         """ Create new root resource instance
         """
         return self._root_class(request)
+
+    def resolve_view(self, resource, tail=()):
+        """ Resolve view for resource and tail
+        """
+        resource_class = resource.__class__
+
+        for rc in resource_class.__mro__[:-1]:
+            if rc in self['resources']:
+                views = self['resources'][rc]['views']
+
+                if tail in views:
+                    view = views[tail]
+                    break
+
+                elif '*' in views:
+                    view = views['*']
+                    break
+
+        else:
+            raise ViewNotResolved(resource, tail)
+
+        return view(resource)
 
     def bind_view(self, resource, view, tail=()):
         """ Bind view for resource

@@ -4,6 +4,7 @@ import logging
 from aiohttp.abc import AbstractRouter, AbstractMatchInfo
 from aiohttp.web_exceptions import HTTPNotFound
 
+from .exceptions import ViewNotResolved
 from .traversal import traverse
 
 log = logging.getLogger(__name__)
@@ -30,7 +31,11 @@ class Router(AbstractRouter):
         resource, tail = yield from self.traverse(request)
         request.resource = resource
         request.tail = tail
-        view = self.get_view(resource, tail)
+
+        try:
+            view = self.app.resolve_view(resource, tail)
+        except ViewNotResolved:
+            raise HTTPNotFound
 
         return MatchInfo(view)
 
@@ -43,23 +48,3 @@ class Router(AbstractRouter):
             return (yield from traverse(root, path))
         else:
             return root, path
-
-    def get_view(self, resource, tail=()):
-        resource_class = resource.__class__
-
-        for rc in resource_class.__mro__[:-1]:
-            if rc in self.app['resources']:
-                views = self.app['resources'][rc]['views']
-
-                if tail in views:
-                    view = views[tail]
-                    break
-
-                elif '*' in views:
-                    view = views['*']
-                    break
-
-        else:
-            raise HTTPNotFound
-
-        return view(resource)
