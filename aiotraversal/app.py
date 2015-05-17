@@ -120,7 +120,11 @@ class Application(BaseApplication):
 class _ApplicationIncludeWrapper:
     def __init__(self, app, module):
         self._app = app
-        self._module = module
+
+        if module.endswith('.__init__'):
+            self._module = module.rsplit('.', 1)[0]
+        else:
+            self._module = module
 
     def __getattr__(self, name):
         return getattr(self._app, name)
