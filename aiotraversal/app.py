@@ -20,6 +20,7 @@ class Application(BaseApplication):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('router', Router(self))
         super().__init__(*args, **kwargs)
+        self._middlewares = list(self._middlewares)
 
         self['settings'] = {}
         self['resources'] = {}
@@ -30,6 +31,8 @@ class Application(BaseApplication):
     def start(self, loop):
         """ Start applisation and add to event loop
         """
+        self._middlewares = tuple(self._middlewares)
+
         host = self['settings']['host']
         port = self['settings']['port']
 
