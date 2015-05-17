@@ -20,4 +20,5 @@ setup(name='aiotraversal',
           'aiohttp',
           'zope.dottedname',
       ],
+      tests_require=['pytest'],
 )

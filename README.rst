@@ -18,3 +18,12 @@ Schemes
 .. image:: https://raw.githubusercontent.com/zzzsochi/aiotraversal/master/doc/img/traversal_algorithm.png
    :alt: Traversal algorithm
    :align: center
+
+-----
+Tests
+-----
+
+.. code:: shell
+
+    $ pip install pytest
+    $ py.test
