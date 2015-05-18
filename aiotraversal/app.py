@@ -56,8 +56,8 @@ class Application(BaseApplication):
                 func = getattr(func, 'includeme')
 
             if not callable(func):
-                raise ValueError("{}.includeme is not callable"
-                                 "".format(func.__name__))
+                raise TypeError("{!r} is not callable"
+                                "".format(func))
 
         func(_ApplicationIncludeWrapper(self, func.__module__))
 
@@ -66,6 +66,8 @@ class Application(BaseApplication):
 
         Usage from configuration process.
         """
+        assert isinstance(name, str), 'name is not a string!'
+
         if hasattr(self, name):
             warnings.warn("Method {} is already exist, replacing it"
                           "".format(name))
