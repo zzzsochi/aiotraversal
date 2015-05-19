@@ -55,6 +55,7 @@ class MethodsView(View):
 
 
 class RESTView(MethodsView):
+    @asyncio.coroutine
     def __call__(self):
         data = yield from super().__call__()
 
