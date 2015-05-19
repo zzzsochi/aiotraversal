@@ -10,11 +10,6 @@ from .helpers import *
 
 
 @pytest.fixture
-def app(loop):
-    return Application(loop=loop)
-
-
-@pytest.fixture
 def Res():
     return type('res', (), {})
 

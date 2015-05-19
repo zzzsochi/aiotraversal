@@ -8,6 +8,12 @@ log = logging.getLogger(__name__)
 
 
 class Resource(AbstractResource):
+    parent = None
+    name = None
+    request = None
+    app = None
+    setup = None
+
     def __init__(self, parent, name):
         self.parent = parent
         self.name = name
@@ -42,7 +48,7 @@ class InitCoroMixin:
         return coro()
 
     @asyncio.coroutine
-    def __init_coro__(self, *args, **kwargs):
+    def __init_coro__(self):
         raise NotImplementedError
 
 
@@ -53,12 +59,12 @@ class DispatchMixin:
                 and 'children' in self.setup
                 and name in self.setup['children']):
 
-            res = self.setup['children'][name]
+            res = self.setup['children'][name](self, name)
 
-            if isinstance(res, InitCoroMixin):
-                return (yield from res(self, name))
+            if asyncio.iscoroutine(res):
+                return (yield from res)
             else:
-                return res(self, name)
+                return res
         else:
             return None
 

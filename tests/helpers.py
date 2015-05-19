@@ -2,9 +2,10 @@ import asyncio
 
 import pytest
 
+from aiotraversal.app import Application
 from aiotraversal.traversal import Traverser
 
-__all__ = ['loop', 'root', 'Resource']
+__all__ = ['loop', 'root', 'app']
 
 
 @pytest.fixture
@@ -35,3 +36,8 @@ class Resource():
 
     def __repr__(self):
         return '<resource {!r}>'.format(self.name)
+
+
+@pytest.fixture
+def app(loop):
+    return Application(loop=loop)
