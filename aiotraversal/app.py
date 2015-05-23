@@ -1,4 +1,4 @@
-import types
+from types import MethodType, ModuleType
 import logging
 import warnings
 
@@ -6,6 +6,7 @@ from aiohttp.web import Application as BaseApplication
 from zope.dottedname.resolve import resolve
 
 from .exceptions import ViewNotResolved
+from .helpers import resolver
 from .router import Router
 from .resources import Root
 
@@ -49,7 +50,7 @@ class Application(BaseApplication):
         else:
             func = resolve(name_or_func, module=module)
 
-            if isinstance(func, types.ModuleType):
+            if isinstance(func, ModuleType):
                 if not hasattr(func, 'includeme'):
                     raise ImportError("{}.includeme".format(func.__name__))
 
@@ -61,6 +62,7 @@ class Application(BaseApplication):
 
         func(_ApplicationIncludeWrapper(self, func.__module__))
 
+    @resolver('func')
     def add_method(self, name, func):
         """ Add method to application
 
@@ -68,13 +70,19 @@ class Application(BaseApplication):
         """
         assert isinstance(name, str), 'name is not a string!'
 
-        if hasattr(self, name):
+        if hasattr(self, '_app'):
+            app = self._app
+        else:
+            app = self
+
+        if hasattr(app, name):
             warnings.warn("Method {} is already exist, replacing it"
                           "".format(name))
 
-        meth = types.MethodType(func, self)
-        setattr(self, name, meth)
+        meth = MethodType(func, app)
+        setattr(app, name, meth)
 
+    @resolver('root_class')
     def set_root_class(self, root_class):
         """ Set root resource class
 
@@ -87,10 +95,14 @@ class Application(BaseApplication):
         """
         return self._root_class(request)
 
+    @resolver('resource')
     def resolve_view(self, resource, tail=()):
         """ Resolve view for resource and tail
         """
-        resource_class = resource.__class__
+        if isinstance(resource, type):
+            resource_class = resource
+        else:
+            resource_class = resource.__class__
 
         for rc in resource_class.__mro__[:-1]:
             if rc in self['resources']:
@@ -109,6 +121,7 @@ class Application(BaseApplication):
 
         return view(resource)
 
+    @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
         """ Bind view for resource
         """
@@ -118,6 +131,7 @@ class Application(BaseApplication):
         setup = self._get_resource_setup(resource)
         setup['views'][tail] = view
 
+    @resolver('resource')
     def _get_resource_setup(self, resource):
         return self['resources'].setdefault(resource, {'views': {}})
 
@@ -132,7 +146,12 @@ class _ApplicationIncludeWrapper:
             self._module = module
 
     def __getattr__(self, name):
-        return getattr(self._app, name)
+        attr = getattr(self._app, name)
+
+        if isinstance(attr, MethodType):
+            return MethodType(attr.__func__, self)
+        else:
+            return attr
 
     def __getitem__(self, name):
         return self._app[name]

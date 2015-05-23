@@ -97,7 +97,7 @@ def test_DispatchResource(loop, app):
             self.calls_init_coro += 1
 
     app.include('aiotraversal.resources')
-    app.add_child(Root, 'simple', Res)
+    app.add_child('aiotraversal.resources.Root', 'simple', Res)
     app.add_child(Root, 'coro', CoroRes)
 
     request = MagicMock(name='request')

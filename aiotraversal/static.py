@@ -10,6 +10,7 @@ from collections import namedtuple
 
 from aiohttp.web import Response, HTTPNotFound
 
+from .helpers import resolver
 from .resources import Resource
 from .views import View
 
@@ -59,6 +60,7 @@ class StaticView(View):
         )
 
 
+@resolver('parent', 'resource_class')
 def add_static(app, parent, name, path, resource_class=StaticResource):
     """ Add resource for serve static
     """

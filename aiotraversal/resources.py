@@ -3,6 +3,7 @@ import logging
 
 from .abc import AbstractResource
 from .traversal import Traverser
+from .helpers import resolver
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +82,7 @@ class Root(DispatchResource):
         self.setup = self.app['resources'].get(self.__class__)
 
 
+@resolver('parent', 'child')
 def add_child(app, parent, name, child):
     """ Add child resource for dispatch-resources
     """
