@@ -10,23 +10,7 @@ Traversal based asyncronious web framework
   :target:  https://coveralls.io/r/zzzsochi/aiotraversal
   :align: right
 
-
--------
-Schemes
--------
-
-**Request lifetime**
-
-.. image:: https://raw.githubusercontent.com/zzzsochi/aiotraversal/master/doc/img/request_lifetime.png
-   :alt: Request lifetime
-   :align: center
-
-
-**Traversal algorithm**
-
-.. image:: https://raw.githubusercontent.com/zzzsochi/aiotraversal/master/doc/img/traversal_algorithm.png
-   :alt: Traversal algorithm
-   :align: center
+This is framework, around `aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
 
 -----
 Tests
