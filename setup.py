@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='aiotraversal',
-      version='0.3',
+      version='0.4',
       description='Traversal based asyncronious web framework',
       # long_description=README,
       classifiers=[
@@ -18,7 +18,8 @@ setup(name='aiotraversal',
       packages=['aiotraversal'],
       install_requires=[
           'aiohttp',
-          'zope.dottedname',
+          'resolver-deco',
+          'includer',
       ],
       tests_require=['pytest'],
 )

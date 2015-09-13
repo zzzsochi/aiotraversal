@@ -1,27 +1,44 @@
-from types import MethodType, ModuleType
-import logging
+from types import MethodType
 import warnings
+import logging
 
 from aiohttp.web import Application as BaseApplication
-from zope.dottedname.resolve import resolve
+from aiohttp_traversal import TraversalRouter
+from aiohttp_traversal.ext.resources import add_child
 
-from .exceptions import ViewNotResolved
-from .helpers import resolver
-from .router import Router
-from .resources import Root
+import includer
+from resolver_deco import resolver
+
 
 log = logging.getLogger(__name__)
 
 
-class Application(BaseApplication):
+class _AiotraversalIncluderMixin(includer.IncluderMixin):
+    def _includer_get_wrapper(self, include_module):
+        return _AiotraversalIncluderWrapper(self, include_module)
+
+    @property
+    def __package_for_resolve_deco__(self):
+        return self._include_module
+
+
+class _AiotraversalIncluderWrapper(_AiotraversalIncluderMixin,
+                                   includer._IncluderWrapper):
+    pass
+
+
+class Application(_AiotraversalIncluderMixin, BaseApplication):
     """ Main application object
     """
-    _root_class = Root
-
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('router', Router(self))
+        kwargs.setdefault('router', TraversalRouter())
         super().__init__(*args, **kwargs)
+
+        self.router.set_root_factory('aiohttp_traversal.ext.resources.Root')
+
         self._middlewares = list(self._middlewares)
+
+        self.add_method('add_child', add_child)
 
         self['settings'] = {}
         self['resources'] = {}
@@ -39,28 +56,8 @@ class Application(BaseApplication):
 
         f = loop.create_server(self.make_handler(), host, port)
         srv = loop.run_until_complete(f)
-        log.info("Start listening {}:{}".format(host, port))
+        log.info("listening - {}:{}".format(host, port))
         return srv
-
-    def include(self, name_or_func, module=None):
-        """ Include external configuration
-        """
-        if callable(name_or_func):
-            func = name_or_func
-        else:
-            func = resolve(name_or_func, module=module)
-
-            if isinstance(func, ModuleType):
-                if not hasattr(func, 'includeme'):
-                    raise ImportError("{}.includeme".format(func.__name__))
-
-                func = getattr(func, 'includeme')
-
-            if not callable(func):
-                raise TypeError("{!r} is not callable"
-                                "".format(func))
-
-        func(_ApplicationIncludeWrapper(self, func.__module__))
 
     @resolver('func')
     def add_method(self, name, func):
@@ -68,7 +65,8 @@ class Application(BaseApplication):
 
         Usage from configuration process.
         """
-        assert isinstance(name, str), 'name is not a string!'
+        if not isinstance(name, str):
+            raise TypeError('name is not a string!')
 
         if hasattr(self, '_app'):
             app = self._app
@@ -82,82 +80,6 @@ class Application(BaseApplication):
         meth = MethodType(func, app)
         setattr(app, name, meth)
 
-    @resolver('root_class')
-    def set_root_class(self, root_class):
-        """ Set root resource class
-
-        Analogue of the "set_root_factory" method from pyramid framework.
-        """
-        self._root_class = root_class
-
-    def get_root(self, request):
-        """ Create new root resource instance
-        """
-        return self._root_class(request)
-
-    @resolver('resource')
-    def resolve_view(self, resource, tail=()):
-        """ Resolve view for resource and tail
-        """
-        if isinstance(resource, type):
-            resource_class = resource
-        else:
-            resource_class = resource.__class__
-
-        for rc in resource_class.__mro__[:-1]:
-            if rc in self['resources']:
-                views = self['resources'][rc]['views']
-
-                if tail in views:
-                    view = views[tail]
-                    break
-
-                elif '*' in views:
-                    view = views['*']
-                    break
-
-        else:
-            raise ViewNotResolved(resource, tail)
-
-        return view(resource)
-
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
-        """ Bind view for resource
-        """
-        if isinstance(tail, str) and tail != '*':
-            tail = tuple(i for i in tail.split('/') if i)
-
-        setup = self._get_resource_setup(resource)
-        setup['views'][tail] = view
-
-    @resolver('resource')
-    def _get_resource_setup(self, resource):
-        return self['resources'].setdefault(resource, {'views': {}})
-
-
-class _ApplicationIncludeWrapper:
-    def __init__(self, app, module):
-        self._app = app
-
-        if module.endswith('.__init__'):
-            self._module = module.rsplit('.', 1)[0]
-        else:
-            self._module = module
-
-    def __getattr__(self, name):
-        attr = getattr(self._app, name)
-
-        if isinstance(attr, MethodType):
-            return MethodType(attr.__func__, self)
-        else:
-            return attr
-
-    def __getitem__(self, name):
-        return self._app[name]
-
-    def __setitem__(self, name, value):
-        self._app[name] = value
-
-    def include(self, name_or_func):
-        self._app.include(name_or_func, self._module)
+        self.router.bind_view(resource, view, tail)
