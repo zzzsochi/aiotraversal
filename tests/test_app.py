@@ -4,6 +4,7 @@ import warnings
 
 import pytest
 
+from aiohttp_traversal.ext.resources import Root
 from aiotraversal.app import Application, _AiotraversalIncluderWrapper
 
 
@@ -115,3 +116,9 @@ def test_add_method__twice(app):
         assert len(w) == 1
 
     assert app.meth() == 2
+
+
+def test_get_root(app, loop):
+    root = loop.run_until_complete(app.get_root())
+    assert isinstance(root, Root)
+    assert root.app is app

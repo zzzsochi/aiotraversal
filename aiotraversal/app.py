@@ -1,3 +1,4 @@
+import asyncio
 from types import MethodType
 import warnings
 import logging
@@ -82,4 +83,14 @@ class Application(_AiotraversalIncluderMixin, BaseApplication):
 
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
+        """ Bind view to resource
+        """
         self.router.bind_view(resource, view, tail)
+
+    @asyncio.coroutine
+    def get_root(self, *args, **kwargs):
+        """ Return new root of resource tree
+
+        This method is coroutine.
+        """
+        return (yield from self.router.get_root(self, *args, **kwargs))
