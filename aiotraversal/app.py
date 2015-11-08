@@ -6,6 +6,7 @@ import logging
 from aiohttp.web import Application as BaseApplication
 from aiohttp_traversal import TraversalRouter
 from aiohttp_traversal.ext.resources import add_child
+from aiohttp_exc_handlers import exc_handlers_middleware, bind_exc_handler
 
 import includer
 from resolver_deco import resolver
@@ -33,16 +34,16 @@ class Application(_AiotraversalIncluderMixin, BaseApplication):
     """
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('router', TraversalRouter())
+        kwargs.setdefault('middlewares', [exc_handlers_middleware])
         super().__init__(*args, **kwargs)
 
         self.router.set_root_factory('aiohttp_traversal.ext.resources.Root')
 
-        self._middlewares = list(self._middlewares)
+        self._middlewares = list(self._middlewares)  # some monkey patching
 
         self.add_method('add_child', add_child)
 
         self['settings'] = {}
-        self['resources'] = {}
 
         self['settings'].setdefault('host', 'localhost')
         self['settings'].setdefault('port', 8080)
@@ -67,7 +68,7 @@ class Application(_AiotraversalIncluderMixin, BaseApplication):
         Usage from configuration process.
         """
         if not isinstance(name, str):
-            raise TypeError('name is not a string!')
+            raise TypeError("name is not a string!")
 
         if hasattr(self, '_app'):
             app = self._app
@@ -85,7 +86,16 @@ class Application(_AiotraversalIncluderMixin, BaseApplication):
     def bind_view(self, resource, view, tail=()):
         """ Bind view to resource
         """
-        self.router.bind_view(resource, view, tail)
+        log.debug("bind_view({!r}, {!r}, {!r}, {!r})"
+                  "".format(self, resource, view, tail))
+
+        if issubclass(resource, Exception):
+            if tail:
+                raise TypeError("tail not accepted for exception resources")
+
+            bind_exc_handler(self, resource, view)
+        else:
+            self.router.bind_view(resource, view, tail)
 
     @asyncio.coroutine
     def get_root(self, *args, **kwargs):

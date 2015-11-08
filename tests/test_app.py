@@ -24,16 +24,15 @@ def test_init(loop):
     assert 'settings' in app
     assert 'host' in app['settings']
     assert 'port' in app['settings']
-    assert 'resources' in app
     assert isinstance(app.middlewares, list)
-    assert len(app.middlewares) == 0
+    assert len(app.middlewares) == 1  # aiohttp_exc_handlers
 
 
 def test_start(loop, app):
     srv = app.start(loop)
 
     assert isinstance(app.middlewares, tuple)
-    assert len(app.middlewares) == 0
+    assert len(app.middlewares) == 1  # aiohttp_exc_handlers
     assert srv._loop is loop
     assert srv.sockets
 
@@ -116,6 +115,39 @@ def test_add_method__twice(app):
         assert len(w) == 1
 
     assert app.meth() == 2
+
+
+def test_bind_view__resource(app):
+    class Res:
+        pass
+
+    def view(request, resource, tail):
+        return 'response'
+
+    app.bind_view(Res, view)
+    assert Res in app.router.resources
+
+
+def test_bind_view__exception(app):
+    class Exc(Exception):
+        pass
+
+    def view(request, exc):
+        return 'response'
+
+    app.bind_view(Exc, view)
+    assert Exc in app['exc_handlers']
+
+
+def test_bind_view__exception_w_tail(app):
+    class Exc(Exception):
+        pass
+
+    def view(request, exc):
+        return 'response'
+
+    with pytest.raises(TypeError):
+        app.bind_view(Exc, view, '/a/b/c')
 
 
 def test_get_root(app, loop):
