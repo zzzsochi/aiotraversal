@@ -20,7 +20,7 @@ setup(
     packages=['aiotraversal'],
     install_requires=[
         'aiohttp',
-        'aiohttp_traversal>=0.6',
+        'aiohttp_traversal>=0.8',
         'aiohttp_exc_handlers',
         'resolver-deco',
         'includer',

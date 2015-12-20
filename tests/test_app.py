@@ -150,7 +150,7 @@ def test_bind_view__exception_w_tail(app):
         app.bind_view(Exc, view, '/a/b/c')
 
 
-def test_get_root(app, loop):
-    root = loop.run_until_complete(app.get_root())
+def test_get_root(app):
+    root = app.get_root()
     assert isinstance(root, Root)
     assert root.app is app

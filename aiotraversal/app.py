@@ -97,10 +97,7 @@ class Application(_AiotraversalIncluderMixin, BaseApplication):
         else:
             self.router.bind_view(resource, view, tail)
 
-    @asyncio.coroutine
     def get_root(self, *args, **kwargs):
         """ Return new root of resource tree
-
-        This method is coroutine.
         """
-        return (yield from self.router.get_root(self, *args, **kwargs))
+        return self.router.get_root(self, *args, **kwargs)
