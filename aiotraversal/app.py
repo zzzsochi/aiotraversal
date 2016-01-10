@@ -105,6 +105,14 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
     def router(self):
         return self.app.router
 
+    @property
+    def _finish_callbacks(self):
+        return self.app._finish_callbacks
+
+    @property
+    def register_on_finish(self):
+        return self.app.register_on_finish
+
     def include_deferred(self, func, **kwargs):
         """ Include this on configuration process exit
         """
