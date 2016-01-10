@@ -33,16 +33,62 @@ CHANGES
 
     .. code:: python
 
-    def main():
-        loop = asyncio.get_event_loop()
-        app = Application()
+        def main():
+            loop = asyncio.get_event_loop()
+            app = Application()
 
-        with app.configure(loop=loop) as config:
-            config.include(func)
+            with app.configure(loop=loop) as config:
+                config.include(func)
 
-        app.start()
+            app.start()
 
-    def func(config):
-        work_configure()
+        def func(config):
+            work_configure()
 
 * Add ``Configure.include_deferred``;
+
+* Add modules for command line:
+
+    - ``aiotraversal.cmd``;
+    - ``aiotraversal.logger``;
+    - ``aiotraversal.serve``;
+
+    .. code:: python
+
+        import asyncio
+
+        from aiotraversal import Application
+        from aiotraversal.cmd import run
+
+        def main():
+            loop = asyncio.get_event_loop()
+            app = Application()
+
+            with app.configure(loop=loop) as config:
+                config.include('aiotraversal.cmd')
+                config.include('aiotraversal.logger')
+                config.include('aiotraversal.serve')
+
+            run(app, loop)
+
+        if __name__ == '__main__':
+            main()
+
+    .. code:: shell
+
+        $ cmd
+        usage: cmd [--loglevel WARNING] {help,serve} ...
+
+        positional arguments:
+          {help,serve}
+            help              Print this help
+            serve             Start web server
+
+        optional arguments:
+          --loglevel WARNING  Set log level
+
+        $ cmd --loglevel=DEBUG serve
+        INFO:aiotraversal.app:listening - localhost:8080
+        ^CDEBUG:aiotraversal.cmd:finishing application
+        DEBUG:aiotraversal.cmd:closing loop
+
