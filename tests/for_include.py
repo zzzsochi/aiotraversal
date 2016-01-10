@@ -1,13 +1,11 @@
-def includeme(app):
-    app['test_include_info'] = ('includeme', app)
-    assert app is not app._include_object
-    assert app.start.__func__ == app._include_object.start.__func__
+def includeme(config):
+    config['test_include_info'] = ('includeme', config)
+    assert config is not config._include_object
 
 
-def func(app):
-    app['test_include_info'] = ('func', app)
-    assert app is not app._include_object
-    assert app.start.__func__ == app._include_object.start.__func__
+def func(config):
+    config['test_include_info'] = ('func', config)
+    assert config is not config._include_object
 
 
 not_callable = 'not callable data'
