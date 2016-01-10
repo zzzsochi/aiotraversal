@@ -44,3 +44,5 @@ CHANGES
 
     def func(config):
         work_configure()
+
+* Add ``Configure.include_deferred``;

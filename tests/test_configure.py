@@ -70,6 +70,36 @@ def test_include__deeper(loop, app):
         assert isinstance(wrapper, _ConfigureIncluderWrapper)
 
 
+def test_include_deferred(loop, app):
+    def func(config, parent):
+        config['deferred'] = True
+        assert config is not parent
+
+    with app.configure(loop=loop) as config:
+        assert 'deferred' not in config
+        assert 'deferred' not in app
+        config.include_deferred(func, parent=config)
+        assert 'deferred' not in config
+        assert 'deferred' not in app
+
+    assert 'deferred' in app
+
+
+def test_include_deferred__deeper(loop, app):
+    def func_deferr(config, parent):
+        config['deferred'] = True
+
+    def func(config, parent):
+        config.include_deferred(func_deferr, parent=config)
+
+    with app.configure(loop=loop) as config:
+        config.include(func, parent=config)
+        assert 'deferred' not in config
+        assert 'deferred' not in app
+
+    assert 'deferred' in app
+
+
 def test_add_method(loop, app):
     def func(app, *args, **kwargs):
         return (app, args, kwargs)

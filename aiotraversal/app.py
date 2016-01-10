@@ -53,6 +53,7 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
                              "".format(app.status))
         self.app = app
         self.loop = loop
+        self._includes_deferred = []
 
     def __enter__(self):
         self.active = True
@@ -63,11 +64,19 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.active = False
         if exc_type is not None:
             self.app.status = Statuses.Broken
         else:
-            self.app.status = Statuses.Ok
+            try:
+                for config, func, kwargs in self._includes_deferred:
+                    config.include(func, **kwargs)
+            except Exception:
+                self.app.status = Statuses.Broken
+                raise
+            else:
+                self.app.status = Statuses.Ok
+            finally:
+                self.active = False
 
     def __getitem__(self, key):
         return self.app[key]
@@ -95,6 +104,11 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
     @property
     def router(self):
         return self.app.router
+
+    def include_deferred(self, func, **kwargs):
+        """ Include this on configuration process exit
+        """
+        self._includes_deferred.append((self, func, kwargs))
 
     @resolver('func')
     def add_method(self, name, func):

@@ -26,11 +26,33 @@ def test_statuses__ok(loop, app):
 def test_statuses__broken(loop, app):
     assert app.status == Statuses.NotConfigured
 
+    class Exc(Exception):
+        pass
+
     try:
         with app.configure(loop=loop):
             assert app.status == Statuses.Configuring
-            raise RuntimeError()
-    except RuntimeError:
+            raise Exc()
+    except Exc:
+        pass
+
+    assert app.status == Statuses.Broken
+
+
+def test_statuses__broken_deffered(loop, app):
+    assert app.status == Statuses.NotConfigured
+
+    class Exc(Exception):
+        pass
+
+    def func(config):
+        raise Exc()
+
+    try:
+        with app.configure(loop=loop) as config:
+            assert app.status == Statuses.Configuring
+            config.include_deferred(func)
+    except Exc:
         pass
 
     assert app.status == Statuses.Broken
