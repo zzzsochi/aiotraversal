@@ -25,8 +25,8 @@ Tests
 CHANGES
 =======
 
-0.8.0-dev (2016-01-10)
-----------------------
+0.8.0 (2016-01-10)
+------------------
 
 * Started CHANGES;
 * New configuration process:
