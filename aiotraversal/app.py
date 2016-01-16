@@ -146,8 +146,13 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
         if not self.active:
             raise RuntimeError("configure process is not active")
 
-        log.debug("bind_view({!r}, {!r}, {!r}, {!r})"
-                  "".format(self, resource, view, tail))
+        log.debug("bind_view: {mod}, {res}{tail} -> {view}"
+                  "".format(
+                      mod=self._include_module or '__main__',
+                      res=resource.__name__,
+                      tail=tail if isinstance(tail, str) else '/'.join(tail),
+                      view=view.__name__,
+                  ))
 
         if issubclass(resource, Exception):
             if tail:
