@@ -62,7 +62,7 @@ def test_start(loop, app):
     with app.configure(loop=loop):
         pass
 
-    srv = app.start(loop)
+    handler, srv = app.start(loop)
 
     assert isinstance(app.middlewares, tuple)
     assert len(app.middlewares) == 1  # aiohttp_exc_handlers
