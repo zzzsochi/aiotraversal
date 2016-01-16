@@ -192,10 +192,13 @@ class Application(BaseApplication):
         host = self['settings']['host']
         port = self['settings']['port']
 
-        f = loop.create_server(self.make_handler(), host, port)
+        handler = self.make_handler()
+        f = loop.create_server(handler, host, port)
         srv = loop.run_until_complete(f)
+
         log.info("listening - {}:{}".format(host, port))
-        return srv
+
+        return handler, srv
 
     @asyncio.coroutine
     def finish(self):

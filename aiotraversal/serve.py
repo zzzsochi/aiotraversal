@@ -1,6 +1,9 @@
+import logging
 import signal
 
 from .helpers import uri_argument
+
+log = logging.getLogger(__name__)
 
 
 def includeme(config):
@@ -42,9 +45,14 @@ def setup_static(config):
 
 
 def run_serve(app, loop):
-    app.start(loop=loop)
+    handler, srv = app.start(loop=loop)
 
     for signame in ['SIGINT', 'SIGTERM']:
         loop.add_signal_handler(getattr(signal, signame), loop.stop)
 
     loop.run_forever()
+
+    log.debug("stopping serve")
+    srv.close()
+    loop.run_until_complete(srv.wait_closed())
+    loop.run_until_complete(handler.finish_connections(5.0))
