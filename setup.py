@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='aiotraversal',
-    version='0.8.1',
+    version='0.8.2',
     description='Traversal based asyncronious web framework',
     # long_description=README,
     classifiers=[
