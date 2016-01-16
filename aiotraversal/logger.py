@@ -17,7 +17,7 @@ def includeme(config):
 def setup_loglevel(config):
     """ Monkey patching for setup loglevel before main argument parse
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--loglevel',
                         choices=['NOTSET', 'DEBUG', 'INFO',
                                  'WARNING', 'ERROR', 'CRITICAL'],

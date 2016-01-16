@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 def includeme(config):
     config.setdefault('cmd', {})
-    config['cmd']['parser'] = parser = argparse.ArgumentParser(add_help=False)
+    config['cmd']['parser'] = parser = argparse.ArgumentParser()
     config['cmd']['subparsers'] = parser.add_subparsers()
     config.include(conf_help)
 
@@ -23,7 +23,7 @@ def conf_help(config):
 
 
 def run_help(app, loop):
-    app['cmd']['parser'].print_help()
+    app['cmd']['parser'].print_help()  # pragma no cover
 
 
 def parse_args(config):
@@ -34,10 +34,9 @@ def run(app, loop):
     """ Run configured application with command arguments
     """
     if app.status != Statuses.Ok:
-        raise ValueError("bad applicarion status: {!r}".format(app.status))
+        raise ValueError("bad application status: {!r}".format(app.status))
 
     args = app['cmd']['args']
-    parser = app['cmd']['parser']
 
     if 'cmd_func' in args:
         try:
@@ -48,4 +47,4 @@ def run(app, loop):
             log.debug("closing loop")
             loop.close()
     else:
-        parser.print_help()
+        run_help(app, loop)
