@@ -1,10 +1,84 @@
+"""
+Complex example for usage treversal logic.
+
+URLs:
+
+    * GET /orders -- list of orders
+    * POST /orders -- creage an order
+    * GET /orders/:id -- get an order
+    * PATCH /orders/:id -- change order
+
+Order object:
+
+    * id -- int
+    * value -- int, order's value
+    * status -- str, one of {'executed', 'in_progress', 'done', 'canceled'}
+
+Order lifecycle:
+
+    executed --> in_progress --> done
+       |                |
+       |--> canceled <--|
+
+
+I will use httpie (https://github.com/jkbrzt/httpie) for examples:
+
+    # get orders
+    $ http GET localhost:8080/orders --print=b
+    [
+        {
+            "id": 1,
+            "status": "executed",
+            "value": 1000
+        },
+        {
+            "id": 2,
+            "status": "in_progress",
+            "value": 1200
+        },
+        {
+            "id": 3,
+            "status": "done",
+            "value": 900
+        },
+        {
+            "id": 4,
+            "status": "canceled",
+            "value": 1500
+        }
+    ]
+
+    # create an order
+    $ http POST localhost:8080/orders value:=13000 --print=b
+    {
+        "id": 5,
+        "status": "executed",
+        "value": 13000
+    }
+
+    # try set status 'done'
+    $ http PATCH localhost:8080/orders/1 status=done --print=b
+    400: Bad Request
+
+    # move order to 'in_progress'
+    $ http PATCH localhost:8080/orders/1 status=in_progress --print=b
+    {
+        "id": 1,
+        "status": "in_progress",
+        "value": 1000
+    }
+
+Let's play with it!
+"""
 import asyncio
 
 from aiohttp.web import HTTPBadRequest, HTTPNotFound
 
+from aiohttp_traversal.ext.resources import Root, Resource
+from aiohttp_traversal.ext.views import RESTView
+
 from aiotraversal import Application
-from aiotraversal.resources import Root, Resource
-from aiotraversal.views import RESTView
+from aiotraversal.cmd import run
 
 
 DATA = {
@@ -15,6 +89,18 @@ DATA = {
         {'id': 4, 'status': 'canceled', 'value': 1500},
     ]
 }
+
+
+class NotExistValue(Exception):
+    pass
+
+
+class NotExistStatus(Exception):
+    pass
+
+
+class BadStatus(Exception):
+    pass
 
 
 class OrdersView(RESTView):
@@ -29,7 +115,7 @@ class OrdersView(RESTView):
         data = yield from self.request.json()
 
         if 'value' not in data:
-            raise HTTPBadRequest()
+            raise NotExistValue()
 
         return (yield from self.resource.create(value=data['value']))
 
@@ -52,15 +138,17 @@ class OrdersResource(Resource):
 
     @asyncio.coroutine
     def __getchild__(self, name):
+        """ Return resource, who provide one order logic
+        """
         if not name.isdigit():
-            raise HTTPNotFound()
+            return None
 
         id = int(name)
 
         for order in (o for o in DATA['orders'] if id == o['id']):
             break
         else:
-            raise HTTPNotFound()
+            return None
 
         status = order['status']
 
@@ -86,14 +174,14 @@ class OrderView(RESTView):
         data = yield from self.request.json()
 
         if 'status' not in data:
-            raise HTTPBadRequest()
+            raise NotExistStatus()
 
         status = data['status']
 
         to_status = getattr(self.resource, 'to_{}'.format(status), None)
 
         if not to_status:
-            raise HTTPBadRequest()
+            raise BadStatus()
 
         order = yield from to_status()
 
@@ -148,17 +236,18 @@ class CanceledOrderResource(BaseOrderResource):
 def main():
     loop = asyncio.get_event_loop()
 
-    app = Application()  # create main application instance
-    app.include('aiotraversal.resources')
-    app.add_child(Root, 'orders', OrdersResource)
-    app.bind_view(OrdersResource, OrdersView)  # /orders
-    app.bind_view(BaseOrderResource, OrderView)  # /orders/:id
-    app.start(loop)  # start application
+    app = Application()
 
-    try:
-        loop.run_forever()  # run event loop
-    finally:
-        loop.close()
+    with app.configure(loop=loop) as config:
+        config.include('aiotraversal.cmd')
+        config.include('aiotraversal.serve')
+
+        config.add_child(Root, 'orders', OrdersResource)  # add child for root
+
+        config.bind_view(OrdersResource, OrdersView)
+        config.bind_view(BaseOrderResource, OrderView)  # add view for base class of resources
+
+    run(app, loop)
 
 
 if __name__ == '__main__':

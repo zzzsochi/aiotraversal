@@ -1,5 +1,5 @@
 """
-Hello World application
+Hello World application.
 
 After start, check urls:
 
@@ -12,9 +12,10 @@ import asyncio
 
 from aiohttp.web import Response
 
+from aiohttp_traversal.ext.resources import Root
+from aiohttp_traversal.ext.views import View, RESTView
+
 from aiotraversal import Application
-from aiotraversal.resources import Root
-from aiotraversal.views import View, RESTView
 
 
 class HelloView(View):
@@ -35,8 +36,11 @@ def main():
     loop = asyncio.get_event_loop()
 
     app = Application()  # create main application instance
-    app.bind_view(Root, HelloView)  # add view for '/'
-    app.bind_view(Root, HelloJSON, 'json')  # add view for '/json'
+
+    with app.configure(loop=loop) as config:  # start configure process
+        config.bind_view(Root, HelloView)  # add view for '/'
+        config.bind_view(Root, HelloJSON, 'json')  # add view for '/json'
+
     app.start(loop)  # start application
 
     try:
