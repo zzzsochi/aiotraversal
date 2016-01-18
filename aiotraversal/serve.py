@@ -11,7 +11,7 @@ def includeme(config):
     parser_serve = subparsers.add_parser('serve', help="Start web server")
     config['cmd']['parser_serve'] = parser_serve
 
-    parser_serve.set_defaults(cmd_func=run_serve, cmd='serve')
+    parser_serve.set_defaults(cmd_func=run_serve)
 
     parser_serve.add_argument('--listen',
                               type=uri_argument('localhost:8080'),

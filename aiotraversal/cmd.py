@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 def includeme(config):
     config.setdefault('cmd', {})
     config['cmd']['parser'] = parser = argparse.ArgumentParser()
-    config['cmd']['subparsers'] = parser.add_subparsers()
+    config['cmd']['subparsers'] = parser.add_subparsers(dest='cmd')
     config.include(conf_help)
 
     config.include_deferred(parse_args)
