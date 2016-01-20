@@ -15,7 +15,7 @@ setup(
     ],
     author='Alexander Zelenyak',
     author_email='zzz.sochi@gmail.com',
-    url='',
+    url='https://github.com/zzzsochi/aiotraversal',
     keywords=['asyncio', 'aiohttp', 'traversal', 'pyramid'],
     packages=['aiotraversal'],
     install_requires=[
@@ -24,6 +24,7 @@ setup(
         'aiohttp_exc_handlers',
         'resolver-deco',
         'includer',
+        'zini',
     ],
     tests_require=['pytest'],
 )
