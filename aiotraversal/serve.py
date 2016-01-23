@@ -1,7 +1,8 @@
 import logging
 import signal
 
-from .helpers import uri_argument
+from .app import Statuses
+from .helpers import parse_uri, URI
 
 log = logging.getLogger(__name__)
 
@@ -11,11 +12,9 @@ def includeme(config):
     parser_serve = subparsers.add_parser('serve', help="Start web server")
     config['cmd']['parser_serve'] = parser_serve
 
-    parser_serve.set_defaults(cmd_func=run_serve)
+    parser_serve.set_defaults(func=run_serve)
 
     parser_serve.add_argument('--listen',
-                              type=uri_argument('localhost:8080'),
-                              default='localhost:8080',
                               metavar='HOST:PORT',
                               help="host and port for listen (default 'localhost:8080')")
 
@@ -23,36 +22,62 @@ def includeme(config):
                               metavar='DIR',
                               help='Serve static files')
 
+    config['settings'].setdefault('serve', {})
+
+    if 'settings_ini' in config:
+        config['settings_ini']['serve']['listen'] = 'localhost:8080'
+
     config.include_deferred(setup_listen)
     config.include_deferred(setup_static)
 
 
 def setup_listen(config):
     args = config['cmd']['args']
+    if 'serve' in args and 'listen' in args.serve and args.serve.listen:
+        config['settings']['serve']['listen'] = args.serve.listen
 
-    if getattr(args, 'cmd', '') == 'serve':
-        config['settings']['host'] = args.listen.host
-        config['settings']['port'] = args.listen.port
+    default = URI('localhost', 8080, None)
+    uri = parse_uri(config['settings']['serve']['listen'], default)
+
+    config.setdefault('http', {})
+    config['http']['host'] = uri.host
+    config['http']['port'] = uri.port
 
 
 def setup_static(config):
-    args = config['cmd']['args']
-
-    if getattr(args, 'static', None):
+    path = config['settings']['serve'].get('static')
+    if path is not None:
         config.include('aiotraversal.static')
         config.add_static('aiohttp_traversal.ext.resources.Root',
-                          'static', args.static)
+                          'static', path)
 
 
-def run_serve(app, loop):
-    handler, srv = app.start(loop=loop)
+def start_listening(app, loop):
+    if app.status != Statuses.Ok:
+        raise ValueError("bad application status: {!r}"
+                         "".format(app.status))
 
     for signame in ['SIGINT', 'SIGTERM']:
         loop.add_signal_handler(getattr(signal, signame), loop.stop)
 
+    app.setdefault('http', {})
+    host = app['http'].setdefault('host', 'localhost')
+    port = app['http'].setdefault('port', 8080)
+
+    handler = app.make_handler()
+    fut = loop.create_server(handler, host, port)
+    server = loop.run_until_complete(fut)
+    log.info("listening - {}:{}".format(host, port))
+
+    return handler, server
+
+
+def run_serve(app, loop):  # pragma: no cover
+    handler, server = start_listening(app, loop=loop)
+
     loop.run_forever()
 
     log.debug("stopping serve")
-    srv.close()
-    loop.run_until_complete(srv.wait_closed())
+    server.close()
+    loop.run_until_complete(server.wait_closed())
     loop.run_until_complete(handler.finish_connections(5.0))

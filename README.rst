@@ -25,6 +25,12 @@ Tests
 CHANGES
 =======
 
+0.9.0 (2016-01-XX)
+------------------
+
+* Move ``Application.start`` to ``aiotraversal.serve.start_listening`` function;
+
+
 0.8.0 (2016-01-10)
 ------------------
 

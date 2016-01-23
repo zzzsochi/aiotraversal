@@ -8,9 +8,6 @@ def test_init(loop):
     app = Application(loop=loop)
     assert app.status == Statuses.NotConfigured
     assert 'settings' in app
-    assert 'host' in app['settings']
-    assert 'port' in app['settings']
-    assert isinstance(app.middlewares, list)
     assert len(app.middlewares) == 1  # aiohttp_exc_handlers
 
 
@@ -56,29 +53,6 @@ def test_statuses__broken_deffered(loop, app):
         pass
 
     assert app.status == Statuses.Broken
-
-
-def test_start(loop, app):
-    with app.configure(loop=loop):
-        pass
-
-    handler, srv = app.start(loop)
-
-    assert isinstance(app.middlewares, tuple)
-    assert len(app.middlewares) == 1  # aiohttp_exc_handlers
-    assert srv._loop is loop
-    assert srv.sockets
-
-
-def test_start__error(loop, app):
-    try:
-        with app.configure(loop=loop):
-            raise RuntimeError()
-    except RuntimeError:
-        pass
-
-    with pytest.raises(ValueError):
-        app.start(loop)
 
 
 def test_get_root(app):

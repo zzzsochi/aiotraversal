@@ -179,31 +179,8 @@ class Application(BaseApplication):
 
         self['settings'] = {}
 
-        self['settings'].setdefault('host', 'localhost')
-        self['settings'].setdefault('port', 8080)
-
     def configure(self, loop):
         return Configure(self, loop)
-
-    def start(self, loop):
-        """ Start applisation and add to event loop
-        """
-        if self.status != Statuses.Ok:
-            raise ValueError("bad application status: {!r}"
-                             "".format(self.status))
-
-        self._middlewares = tuple(self._middlewares)
-
-        host = self['settings']['host']
-        port = self['settings']['port']
-
-        handler = self.make_handler()
-        f = loop.create_server(handler, host, port)
-        srv = loop.run_until_complete(f)
-
-        log.info("listening - {}:{}".format(host, port))
-
-        return handler, srv
 
     @asyncio.coroutine
     def finish(self):

@@ -16,6 +16,7 @@ from aiohttp_traversal.ext.resources import Root
 from aiohttp_traversal.ext.views import View, RESTView
 
 from aiotraversal import Application
+from aiotraversal.serve import start_listening
 
 
 class HelloView(View):
@@ -41,7 +42,7 @@ def main():
         config.bind_view(Root, HelloView)  # add view for '/'
         config.bind_view(Root, HelloJSON, 'json')  # add view for '/json'
 
-    app.start(loop)  # start application
+    start_listening(app, loop=loop)  # start listening localhost:8080
 
     try:
         loop.run_forever()  # run event loop
