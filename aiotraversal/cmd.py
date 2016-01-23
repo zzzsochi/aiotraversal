@@ -18,7 +18,7 @@ def includeme(config):
 def conf_help(config):
     subparsers = config['cmd']['subparsers']
     parser_help = subparsers.add_parser('help', help="Print this help")
-    parser_help.set_defaults(cmd_func=run_help)
+    parser_help.set_defaults(func=run_help)
     config['cmd']['parser_help'] = parser_help
 
 
@@ -27,20 +27,23 @@ def run_help(app, loop):
 
 
 def parse_args(config):
-    config['cmd']['args'] = config['cmd']['parser'].parse_args()
+    args = config['cmd']['args'] = config['cmd']['parser'].parse_args()
+
+    if 'cmd' in args and args.cmd in args:
+        config['run_func'] = getattr(getattr(args, args.cmd), 'func', None)
+    else:
+        config['run_func'] = None  # pragma: no cover
 
 
 def run(app, loop):
     """ Run configured application with command arguments
     """
-    if app.status != Statuses.Ok:
+    if app.status != Statuses.Ok:  # pragma: no cover
         raise ValueError("bad application status: {!r}".format(app.status))
 
-    args = app['cmd']['args']
-
-    if 'cmd_func' in args:
+    if app.get('run_func') is not None:
         try:
-            args.cmd_func(app, loop)
+            app['run_func'](app, loop)
         finally:
             log.debug("finishing application")
             loop.run_until_complete(app.finish())
