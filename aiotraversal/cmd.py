@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 def includeme(config):
     config.setdefault('cmd', {})
-    config['cmd']['parser'] = parser = argparse.ArgumentParser()
+    config['cmd']['parser'] = parser = ArgumentParser()
     config['cmd']['subparsers'] = parser.add_subparsers(dest='cmd')
     config.include(conf_help)
 
@@ -46,5 +46,20 @@ def run(app, loop):
             loop.run_until_complete(app.finish())
             log.debug("closing loop")
             loop.close()
-    else:
+    else:  # pragma: no cover
         run_help(app, loop)
+
+
+class ArgumentParser(argparse.ArgumentParser):
+    def parse_args(self, *args, **kw):
+        args = super().parse_args(*args, **kw)
+
+        topdest = [action.dest for action in self._actions]
+        subargs = {}
+        for key, value in args.__dict__.copy().items():
+            if key not in topdest:
+                delattr(args, key)
+                subargs[key] = value
+
+        setattr(args, args.cmd, argparse.Namespace(**subargs))
+        return args
