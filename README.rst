@@ -28,6 +28,7 @@ CHANGES
 0.9.0 (2016-01-XX)
 ------------------
 
+* Add settings;
 * Move ``Application.start`` to ``aiotraversal.serve.start_listening`` function;
 
 

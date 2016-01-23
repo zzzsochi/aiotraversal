@@ -24,7 +24,7 @@ setup(
         'aiohttp_exc_handlers',
         'resolver-deco',
         'includer',
-        'zini',
+        'zini>=1.0.2',
     ],
     tests_require=['pytest'],
 )
