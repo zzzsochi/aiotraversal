@@ -30,20 +30,24 @@ def parse_args(config):
     args = config['cmd']['args'] = config['cmd']['parser'].parse_args()
 
     if 'cmd' in args and args.cmd in args:
-        config['run_func'] = getattr(getattr(args, args.cmd), 'func', None)
+        cmd_ns = getattr(args, args.cmd)
+        config['cmd']['run_func'] = getattr(cmd_ns, 'func', None)
     else:
-        config['run_func'] = None  # pragma: no cover
+        config['cmd']['run_func'] = None  # pragma: no cover
 
 
 def run(app, loop):
-    """ Run configured application with command arguments
+    """ Start and finish configured application
+
+    If ``app['cmd']['run_func']`` not exist or ``None``,
+    print help and exit.
     """
     if app.status != Statuses.Ok:  # pragma: no cover
         raise ValueError("bad application status: {!r}".format(app.status))
 
-    if app.get('run_func') is not None:
+    if app['cmd'].get('run_func') is not None:
         try:
-            app['run_func'](app, loop)
+            app['cmd']['run_func'](app, loop)
         finally:
             log.debug("finishing application")
             loop.run_until_complete(app.finish())
@@ -54,6 +58,10 @@ def run(app, loop):
 
 
 class ArgumentParser(argparse.ArgumentParser):
+    """ Argument parser with nested namespaces
+
+    https://stackoverflow.com/questions/15782948/how-to-have-sub-parser-arguments-in-separate-namespace-with-argparse/15786238#15786238
+    """
     def parse_args(self, *args, **kw):
         args = super().parse_args(*args, **kw)
 
