@@ -4,9 +4,15 @@ aiotraversal
 
 .. image:: https://api.travis-ci.org/zzzsochi/aiotraversal.svg
   :target:  https://secure.travis-ci.org/zzzsochi/aiotraversal
+  :alt: CI
 
 .. image:: https://coveralls.io/repos/zzzsochi/aiotraversal/badge.svg
   :target:  https://coveralls.io/r/zzzsochi/aiotraversal
+  :alt: Code coverage
+
+.. image:: https://readthedocs.org/projects/aiotraversal/badge/?version=latest
+  :target: http://aiotraversal.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
 
 This is small web framework, around `aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
 

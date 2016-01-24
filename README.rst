@@ -4,10 +4,17 @@ Traversal based asyncronious web framework
 
 .. image:: https://api.travis-ci.org/zzzsochi/aiotraversal.svg
   :target:  https://secure.travis-ci.org/zzzsochi/aiotraversal
+  :alt: CI
   :align: right
 
 .. image:: https://coveralls.io/repos/zzzsochi/aiotraversal/badge.svg
   :target:  https://coveralls.io/r/zzzsochi/aiotraversal
+  :alt: Code coverage
+  :align: right
+
+.. image:: https://readthedocs.org/projects/aiotraversal/badge/?version=latest
+  :target: http://aiotraversal.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
   :align: right
 
 This is framework, around `aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
