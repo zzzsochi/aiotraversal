@@ -30,8 +30,7 @@ def test_parse_uri(value, default, host, port, path):
 
 
 def test_parse_uri__empty():
-    with pytest.raises(ValueError):
-        parse_uri('')
+    assert parse_uri('') == URI(None, None, None)
 
 
 def test_parse_uri__bad_port():

@@ -2,26 +2,26 @@ from collections import namedtuple
 import re
 
 URI = namedtuple('URI', ('host', 'port', 'path'))
+RE_URI = re.compile(r'^(?P<host>[\w\.]+)?(?::(?P<port>\d+))?(?:\/(?P<path>.+))?$')
 
 
 def parse_uri(raw, default=URI(None, None, None)):
-    res = re.match(r'([\w\.]+)(?::(\w+))?(?:\/(.+))?', raw)
+    if isinstance(default, str):
+        default = parse_uri(default)
+
+    res = RE_URI.match(raw)
 
     if not res:
-        raise ValueError(raw)
+        raise ValueError("bad uri: {!r}".format(raw))
 
-    host, port, path = res.groups()
+    groups = res.groupdict()
 
-    if not host:
-        host = default.host
+    host = groups['host'] if groups['host'] is not None else default.host
+    port = groups['port'] if groups['port'] is not None else default.port
+    path = groups['path'] if groups['path'] is not None else default.path
 
     if port:
         port = int(port)
-    else:
-        port = default.port
-
-    if not path:
-        path = default.path
 
     return URI(host, port, path)
 
