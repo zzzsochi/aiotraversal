@@ -36,8 +36,8 @@ def setup_listen(config):
     if 'serve' in args and 'listen' in args.serve and args.serve.listen:
         config['settings']['serve']['listen'] = args.serve.listen
 
-    default = URI('localhost', 8080, None)
-    uri = parse_uri(config['settings']['serve']['listen'], default)
+    listen = config['settings']['serve'].get('listen', '')
+    uri = parse_uri(listen, 'localhost:8080')
 
     config.setdefault('http', {})
     config['http']['host'] = uri.host
