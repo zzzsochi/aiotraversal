@@ -72,5 +72,7 @@ class ArgumentParser(argparse.ArgumentParser):
                 delattr(args, key)
                 subargs[key] = value
 
-        setattr(args, args.cmd, argparse.Namespace(**subargs))
+        if args.cmd is not None:
+            setattr(args, args.cmd, argparse.Namespace(**subargs))
+
         return args
