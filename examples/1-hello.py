@@ -1,10 +1,14 @@
 """
 Hello World application.
 
+Start:
+
+    python 1-hello.py serve
+
 After start, check urls:
 
-    * GET localhost:8080/
-    * GET localhost:8080/json
+    * http://localhost:8080/
+    * http://localhost:8080/json
 
 """
 
@@ -16,7 +20,7 @@ from aiohttp_traversal.ext.resources import Root
 from aiohttp_traversal.ext.views import View, RESTView
 
 from aiotraversal import Application
-from aiotraversal.serve import start_listening
+from aiotraversal.cmd import run
 
 
 class HelloView(View):
@@ -39,15 +43,12 @@ def main():
     app = Application()  # create main application instance
 
     with app.configure(loop=loop) as config:  # start configure process
+        config.include('aiotraversal.cmd')  # include module for command-line parsing
+        config.include('aiotraversal.serve')  # include module for start serving
         config.bind_view(Root, HelloView)  # add view for '/'
         config.bind_view(Root, HelloJSON, 'json')  # add view for '/json'
 
-    start_listening(app, loop=loop)  # start listening localhost:8080
-
-    try:
-        loop.run_forever()  # run event loop
-    finally:
-        loop.close()
+    run(app, loop=loop)  # start application
 
 
 if __name__ == '__main__':
