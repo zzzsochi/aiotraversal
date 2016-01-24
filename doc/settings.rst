@@ -30,7 +30,7 @@ For example:
 Objects
 =======
 
-* ``config['settings_ini']``: instance of `Zini <https://github.com/zzzsochi/zini>`;
+* ``config['settings_ini']``: instance of `Zini <https://github.com/zzzsochi/zini>`_;
 * ``config['settings']['file']``: path to file with settings;
 
 

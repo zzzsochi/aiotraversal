@@ -11,10 +11,11 @@ aiotraversal
   :alt: Code coverage
 
 .. image:: https://readthedocs.org/projects/aiotraversal/badge/?version=latest
-  :target: http://aiotraversal.readthedocs.org/en/latest/?badge=latest
+  :target: https://aiotraversal.readthedocs.org/en/latest/?badge=latest
   :alt: Documentation Status
 
-This is small web framework, around `aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
+Traversal based asynchronous web framework, based on
+`aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
 
 
 Hello World

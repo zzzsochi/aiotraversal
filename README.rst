@@ -1,23 +1,29 @@
 ==========================================
-Traversal based asyncronious web framework
+Traversal based asynchronous web framework
 ==========================================
 
 .. image:: https://api.travis-ci.org/zzzsochi/aiotraversal.svg
   :target:  https://secure.travis-ci.org/zzzsochi/aiotraversal
   :alt: CI
-  :align: right
 
 .. image:: https://coveralls.io/repos/zzzsochi/aiotraversal/badge.svg
   :target:  https://coveralls.io/r/zzzsochi/aiotraversal
   :alt: Code coverage
-  :align: right
 
 .. image:: https://readthedocs.org/projects/aiotraversal/badge/?version=latest
-  :target: http://aiotraversal.readthedocs.org/en/latest/?badge=latest
+  :target: https://aiotraversal.readthedocs.org/en/latest/?badge=latest
   :alt: Documentation Status
-  :align: right
+
 
 This is framework, around `aiohttp_traversal <https://github.com/zzzsochi/aiohttp_traversal>`_.
+
+-------
+Install
+-------
+
+.. code:: shell
+
+    $ pip install aiotraversal
 
 -----
 Tests
@@ -25,18 +31,41 @@ Tests
 
 .. code:: shell
 
-    $ pip install pytest
-    $ py.test
+    $ git clone https://github.com/zzzsochi/aiotraversal.git
+    $ cd aiotraversal
+    $ pip install pytest pytest-cov
+    $ py.test --cov ./aiotraversal --cov-report term-missing
 
 
+--------
+Examples
+--------
+
+.. code:: shell
+
+    $ git clone https://github.com/zzzsochi/aiotraversal.git
+    $ cd aiotraversal
+    $ pip install -e .
+    $ python3 examples/1-hello.py serve
+
+.. code:: shell
+
+    $ curl http://localhost:8080
+    Hello World!
+    $ curl http://localhost:8080/json
+    {"text": "Hello World!"}
+
+-------
 CHANGES
-=======
+-------
 
 0.9.0 (2016-01-XX)
 ------------------
 
-* Add settings;
+* Start `documentation <https://aiotraversal.readthedocs.org/en/latest/>`_
+* Add `settings <https://aiotraversal.readthedocs.org/en/latest/settings.html>`_;
 * Move ``Application.start`` to ``aiotraversal.serve.start_listening`` function;
+* Refactoring...
 
 
 0.8.0 (2016-01-10)
