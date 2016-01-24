@@ -29,10 +29,10 @@ def test_cmd(app, loop):
 
     assert 'cmd' in app
     assert 'args' in app['cmd']
-    assert app['cmd']['args'].loglevel == 'WARNING'
     assert 'parser' in app['cmd']
     assert 'subparsers' in app['cmd']
     assert 'parser_serve' in app['cmd']
+    assert app['loglevel'] == 'WARNING'
     assert app['http']['host'] == '0.0.0.0'
     assert app['http']['port'] == 8080
 
