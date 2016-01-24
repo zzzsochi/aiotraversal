@@ -1,31 +1,6 @@
-from datetime import timedelta
-import os
-import tempfile
 from unittest.mock import Mock, patch
 
-import pytest
-
 from aiotraversal.cmd import ArgumentParser, run
-
-
-@pytest.yield_fixture(scope='module')
-def settings_ini():
-    data = '''\
-[app]
-a = true
-my-name = "ZZZ"
-
-[serve]
-static = "setting"
-timeout = 1m
-'''
-    with tempfile.TemporaryDirectory() as tmpdir:
-        ini = os.path.join(tmpdir, 'test.ini')
-        with open(ini, 'w') as f:
-            f.write(data)
-
-        yield ini
-        os.remove(ini)
 
 
 def test_parser():
@@ -60,23 +35,6 @@ def test_cmd(app, loop):
     assert 'parser_serve' in app['cmd']
     assert app['http']['host'] == '0.0.0.0'
     assert app['http']['port'] == 8080
-
-
-def test_settings(app, loop, settings_ini):
-    argv = ['cmd', '--settings', settings_ini, 'serve', '--static', 'test']
-
-    with patch('sys.argv', new=argv):
-        with app.configure(loop=loop) as config:
-            config.include('aiotraversal.cmd')
-            config.include('aiotraversal.settings')
-            config.include('aiotraversal.serve')
-
-    assert app['settings']['a'] is True
-    assert app['settings']['my-name'] == "ZZZ"
-
-    assert 'serve' in app['settings']
-    assert app['settings']['serve']['static'] == 'test'
-    assert app['settings']['serve']['timeout'] == timedelta(minutes=1)
 
 
 def test_run(app, loop):

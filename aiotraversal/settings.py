@@ -6,19 +6,20 @@ from zini import Zini
 def includeme(config):
     config['settings_ini'] = Zini()
 
-    parser = config['cmd']['parser']
-    parser.add_argument('--settings',
-                        metavar='FILE',
-                        help='file settings')
+    with_cmd = bool('cmd' in config and config['cmd'].get('parser'))
 
-    config.include_deferred(setup_settings)
+    if with_cmd:
+        parser = config['cmd']['parser']
+        parser.add_argument('--settings',
+                            metavar='FILE',
+                            help='file settings')
+
+    config.include_deferred(setup_settings, with_cmd=with_cmd)
 
 
-def setup_settings(config):
-    args = config['cmd']['args']
-
-    if args.settings:
-        settings_file = config['settings']['file'] = args.settings
+def setup_settings(config, with_cmd):
+    if with_cmd:
+        settings_file = config['settings']['file'] = config['cmd']['args'].settings
     else:
         settings_file = config['settings'].setdefault('file', None)
 
@@ -36,7 +37,8 @@ def setup_settings(config):
         for key, value in data.items():
             section[key] = value
 
-    if args.cmd:
+    if with_cmd and config['cmd']['args'].cmd:
+        args = config['cmd']['args']
         settings_cmd = config['settings'].setdefault(args.cmd, {})
 
         kv = ((k, v)
