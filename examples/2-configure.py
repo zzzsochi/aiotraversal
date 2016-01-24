@@ -23,7 +23,7 @@ from aiotraversal.cmd import run
 class HelloView(View):
     @asyncio.coroutine
     def __call__(self):
-        return Response(text="Hello World!")
+        return Response(text="Hello World!\n")
 
 
 class HelloJSON(RESTView):
