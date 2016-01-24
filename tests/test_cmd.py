@@ -92,7 +92,7 @@ def test_run(app, loop):
             parser = subparsers.add_parser('test')
             parser.set_defaults(func=run_test)
 
-        assert app['run_func'] == run_test
+        assert app['cmd']['run_func'] == run_test
         run_test.assert_not_called()
         run(app, loop)
         run_test.assert_called_with(app, loop)
