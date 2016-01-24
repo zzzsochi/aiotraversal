@@ -59,13 +59,13 @@ Examples
 CHANGES
 -------
 
-0.9.0 (2016-01-XX)
+0.9.0 (2016-01-24)
 ------------------
 
 * Start `documentation <https://aiotraversal.readthedocs.org/en/latest/>`_
 * Add `settings <https://aiotraversal.readthedocs.org/en/latest/settings.html>`_;
 * Move ``Application.start`` to ``aiotraversal.serve.start_listening`` function;
-* Refactoring...
+* Refactoring, refactoring, refactoring, refactoring...
 
 
 0.8.0 (2016-01-10)
