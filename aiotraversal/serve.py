@@ -57,9 +57,6 @@ def start_listening(app, loop):
         raise ValueError("bad application status: {!r}"
                          "".format(app.status))
 
-    for signame in ['SIGINT', 'SIGTERM']:
-        loop.add_signal_handler(getattr(signal, signame), loop.stop)
-
     app.setdefault('http', {})
     host = app['http'].setdefault('host', 'localhost')
     port = app['http'].setdefault('port', 8080)
@@ -73,6 +70,9 @@ def start_listening(app, loop):
 
 
 def run_serve(app, loop):  # pragma: no cover
+    for signame in ['SIGINT', 'SIGTERM']:
+        loop.add_signal_handler(getattr(signal, signame), loop.stop)
+
     handler, server = start_listening(app, loop=loop)
 
     loop.run_forever()
