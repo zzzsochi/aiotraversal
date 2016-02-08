@@ -45,16 +45,16 @@ def run(app, loop):
     if app.status != Statuses.Ok:  # pragma: no cover
         raise ValueError("bad application status: {!r}".format(app.status))
 
-    if app['cmd'].get('run_func') is not None:
-        try:
+    try:
+        if app['cmd'].get('run_func') is not None:
             app['cmd']['run_func'](app, loop)
-        finally:
-            log.debug("finishing application")
-            loop.run_until_complete(app.finish())
-            log.debug("closing loop")
-            loop.close()
-    else:  # pragma: no cover
-        run_help(app, loop)
+        else:  # pragma: no cover
+            run_help(app, loop)
+    finally:
+        log.debug("finishing application")
+        loop.run_until_complete(app.cleanup())
+        log.debug("closing loop")
+        loop.close()
 
 
 class ArgumentParser(argparse.ArgumentParser):
