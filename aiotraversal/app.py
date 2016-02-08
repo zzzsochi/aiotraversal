@@ -113,14 +113,18 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
     def register_on_finish(self):
         return self.app.register_on_finish
 
+    @property
+    def on_cleanup(self):
+        return self.app.on_cleanup
+
     def include_deferred(self, func, **kwargs):
-        """ Include this on configuration process exit
+        """ Include this on configuration process exit.
         """
         self._includes_deferred.append((self, func, kwargs))
 
     @resolver('func')
     def add_method(self, name, func):
-        """ Add method to application
+        """ Add method to application.
 
         Usage from configuration process.
         """
