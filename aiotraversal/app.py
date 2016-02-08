@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class Statuses(enum.Enum):
-    """ Application's statuses
+    """ Application's statuses.
     """
     NotConfigured = 1
     Configuring = 2
@@ -43,7 +43,7 @@ class _ConfigureIncluderWrapper(_ConfigureIncluderMixin,
 
 
 class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
-    """ Configure object for application
+    """ Configure object for application.
     """
     active = False
 
@@ -145,7 +145,7 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
 
     @resolver('resource', 'view')
     def bind_view(self, resource, view, tail=()):
-        """ Bind view to resource
+        """ Bind view to resource.
         """
         if not self.active:
             raise RuntimeError("configure process is not active")
@@ -168,7 +168,7 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
 
 
 class Application(BaseApplication):
-    """ Main application object
+    """ Main application object.
     """
     status = Statuses.NotConfigured
 
@@ -193,6 +193,6 @@ class Application(BaseApplication):
         self.status = Statuses.Finished
 
     def get_root(self, *args, **kwargs):
-        """ Return new root of resource tree
+        """ Return new root of resource tree.
         """
         return self.router.get_root(self, *args, **kwargs)

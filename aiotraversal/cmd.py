@@ -37,7 +37,7 @@ def parse_args(config):
 
 
 def run(app, loop):
-    """ Start and finish configured application
+    """ Start and finish configured application.
 
     If ``app['cmd']['run_func']`` not exist or ``None``,
     print help and exit.
@@ -58,7 +58,7 @@ def run(app, loop):
 
 
 class ArgumentParser(argparse.ArgumentParser):
-    """ Argument parser with nested namespaces
+    """ Argument parser with nested namespaces.
 
     https://stackoverflow.com/questions/15782948/how-to-have-sub-parser-arguments-in-separate-namespace-with-argparse/15786238#15786238
     """
