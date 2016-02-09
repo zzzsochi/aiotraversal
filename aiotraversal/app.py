@@ -162,7 +162,7 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
             if tail:
                 raise TypeError("tail not accepted for exception resources")
 
-            bind_exc_handler(self, resource, view)
+            bind_exc_handler(self.app, resource, view)
         else:
             self.app.router.bind_view(resource, view, tail)
 
