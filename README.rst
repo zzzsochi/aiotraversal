@@ -59,6 +59,15 @@ Examples
 CHANGES
 -------
 
+0.9.1 (2016-02-09)
+------------------
+
+* Update for new aiohttp;
+* Remove ``Configure.register_on_finish`` (fuck b/c!);
+* Add ``Configure.on_cleanup`` list for serial cleanup process;
+* Fix bug in ``Configure.bind_view`` witn exceptions.
+
+
 0.9.0 (2016-01-24)
 ------------------
 
