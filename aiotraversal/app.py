@@ -42,6 +42,17 @@ class _ConfigureIncluderWrapper(_ConfigureIncluderMixin,
     pass
 
 
+@asyncio.coroutine
+def _aiotraversal_on_cleanup(app):
+    for task in app['aiotraversal']['on_cleanup']:
+        if asyncio.iscoroutine(task):
+            yield from task
+        else:
+            res = task(app)
+            if asyncio.iscoroutine(res):
+                yield from res
+
+
 class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
     """ Configure object for application.
     """
@@ -51,9 +62,13 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
         if app.status != Statuses.NotConfigured:
             raise ValueError("bad application status: {!r}"
                              "".format(app.status))
-        self.app = app
-        self.loop = loop
+        self._app = app
+        self._loop = loop
         self._includes_deferred = []
+
+        app.setdefault('aiotraversal', {})
+        app['aiotraversal'].setdefault('on_cleanup', [])
+        self.app.on_cleanup.insert(0, _aiotraversal_on_cleanup)
 
     def __enter__(self):
         self.active = True
@@ -94,28 +109,24 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
         return len(self.app)
 
     @property
-    def _middlewares(self):
-        return self.app._middlewares
+    def app(self):
+        return self._app
+
+    @property
+    def loop(self):
+        return self._loop
 
     @property
     def middlewares(self):
-        return self._middlewares
+        return self.app.middlewares
 
     @property
     def router(self):
         return self.app.router
 
     @property
-    def _finish_callbacks(self):
-        return self.app._finish_callbacks
-
-    @property
-    def register_on_finish(self):
-        return self.app.register_on_finish
-
-    @property
     def on_cleanup(self):
-        return self.app.on_cleanup
+        return self.app['aiotraversal']['on_cleanup']
 
     def include_deferred(self, func, **kwargs):
         """ Include this on configuration process exit.
