@@ -93,31 +93,31 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
             finally:
                 self.active = False
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # pragma: no cover
         return self.app[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value):  # pragma: no cover
         self.app[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key):  # pragma: no cover
         del self.app[key]
 
-    def __iter__(self):
+    def __iter__(self):  # pragma: no cover
         return iter(self.app)
 
-    def __len__(self):
+    def __len__(self):  # pragma: no cover
         return len(self.app)
 
     @property
-    def app(self):
+    def app(self):  # pragma: no cover
         return self._app
 
     @property
-    def loop(self):
+    def loop(self):  # pragma: no cover
         return self._loop
 
     @property
-    def middlewares(self):
+    def middlewares(self):  # pragma: no cover
         return self.app.middlewares
 
     @property
@@ -142,7 +142,7 @@ class Configure(_ConfigureIncluderMixin, abc.MutableMapping):
         if not self.active:
             raise RuntimeError("configure process is not active")
 
-        if not isinstance(name, str):
+        if not isinstance(name, str):  # pragma: no cover
             raise TypeError("name is not a string!")
 
         config = getattr(self, '_config', self)
@@ -198,9 +198,9 @@ class Application(BaseApplication):
         return Configure(self, loop)
 
     @asyncio.coroutine
-    def finish(self):
+    def cleanup(self):
         self.status = Statuses.Finishing
-        yield from super().finish()
+        yield from super().cleanup()
         self.status = Statuses.Finished
 
     def get_root(self, *args, **kwargs):

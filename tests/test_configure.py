@@ -1,8 +1,10 @@
+import asyncio
 from unittest.mock import Mock
 import warnings
 
 import pytest
 
+from aiotraversal.app import Application
 from aiotraversal.app import _ConfigureIncluderWrapper
 
 
@@ -162,3 +164,34 @@ def test_bind_view__exception_w_tail(loop, app):
     with app.configure(loop=loop) as config:
         with pytest.raises(TypeError):
             config.bind_view(Exc, view, '/a/b/c')
+
+
+def test_cleanup(loop, app):
+    result = []
+
+    @asyncio.coroutine
+    def first(r):
+        r.append(1)
+        yield from asyncio.sleep(0)
+
+    def second(app):
+        result.append(2)
+        assert isinstance(app, Application)
+
+    @asyncio.coroutine
+    def third(app):
+        result.append(3)
+        assert isinstance(app, Application)
+        yield from asyncio.sleep(0)
+
+    with app.configure(loop=loop) as config:
+        assert isinstance(config.on_cleanup, list)
+        assert not result
+        config.on_cleanup.append(first(result))
+        config.on_cleanup.append(second)
+        config.on_cleanup.append(third)
+        assert not result
+
+    assert not result
+    loop.run_until_complete(app.cleanup())
+    assert result == [1, 2, 3]
