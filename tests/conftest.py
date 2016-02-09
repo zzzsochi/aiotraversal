@@ -5,10 +5,12 @@ import pytest
 from aiotraversal.app import Application
 
 
-@pytest.fixture
+@pytest.yield_fixture(scope='function')
 def loop():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    yield loop
     asyncio.set_event_loop(None)
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture
