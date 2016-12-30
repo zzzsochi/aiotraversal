@@ -190,8 +190,6 @@ class Application(BaseApplication):
 
         self.router.set_root_factory('aiohttp_traversal.ext.resources.Root')
 
-        self._middlewares = list(self._middlewares)  # some monkey patching
-
         self['settings'] = {}
 
     def configure(self, loop):
