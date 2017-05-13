@@ -7,7 +7,7 @@ import logging
 
 from aiohttp.web import Application as BaseApplication
 from aiohttp_traversal import TraversalRouter
-from aiohttp_traversal.ext.resources import add_child
+from aiohttp_traversal.ext.resources import add_child, Root
 from aiohttp_exc_handlers import exc_handlers_middleware, bind_exc_handler
 
 import includer
@@ -188,7 +188,7 @@ class Application(BaseApplication):
         kwargs.setdefault('middlewares', [exc_handlers_middleware])
         super().__init__(*args, **kwargs)
 
-        self.router.set_root_factory('aiohttp_traversal.ext.resources.Root')
+        self.router.set_root_factory(lambda request, app=self: Root(app))
 
         self['settings'] = {}
 
