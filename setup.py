@@ -19,8 +19,8 @@ setup(
     keywords=['asyncio', 'aiohttp', 'traversal', 'pyramid'],
     packages=['aiotraversal'],
     install_requires=[
-        'aiohttp>=0.21',
-        'aiohttp_traversal>=0.8.1',
+        'aiohttp>=2.0',
+        'aiohttp_traversal>=0.9',
         'aiohttp_exc_handlers',
         'resolver-deco',
         'includer',
